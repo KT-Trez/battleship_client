@@ -1,0 +1,33 @@
+{
+  "alwaysStrict": true,
+  "compilerOptions": {
+    "allowSyntheticDefaultImports": true,
+    "alwaysStrict": true,
+    "lib": [
+      "dom",
+      "es2020"
+    ],
+    "module": "es2022",
+    "moduleResolution": "Node",
+    "noImplicitAny": true,
+    "outDir": "server",
+    "skipLibCheck": true,
+    "sourceMap": true,
+    "target": "es2017"
+  },
+  "exclude": [
+    "node_modules"
+  ],
+  "include": [
+    "src"
+  ],
+  "typedocOptions": {
+    "cleanOutputDir": true,
+    "entryPoints": [
+      "src"
+    ],
+    "entryPointStrategy": "expand",
+    "includeVersion": true,
+    "out": "docs"
+  }
+}
