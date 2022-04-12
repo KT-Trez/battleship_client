@@ -3,7 +3,7 @@ import {ClientToServerEvents, ServerToClientEvents} from '../types/socket';
 
 
 export default class SocketService {
-	static instance: Socket<ServerToClientEvents, ClientToServerEvents>;
+	private static instance: Socket<ServerToClientEvents, ClientToServerEvents>;
 
 	static getInstance() {
 		if (this.instance)
@@ -13,8 +13,8 @@ export default class SocketService {
 	}
 
 	private static setInstance() {
-		this.instance = io(process.env.REACT_APP_WEB_SERVER ?? window.location.origin, {
-			withCredentials: true
+		this.instance = io(process.env.WEB_SERVER_ORIGIN ?? window.location.origin, {
+			withCredentials: false
 		});
 		return this.instance;
 	}

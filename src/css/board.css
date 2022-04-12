@@ -1,0 +1,6 @@
+.board-cell {
+    /* todo: dynamic height and width */
+    height: 50px;
+    width: 50px;
+    background-color: gray;
+}

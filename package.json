@@ -9,6 +9,7 @@
   },
   "dependencies": {
     "css-loader": "^6.7.1",
+    "dotenv-webpack": "^7.1.0",
     "html-webpack-plugin": "^5.5.0",
     "mini-css-extract-plugin": "^2.6.0",
     "socket.io-client": "^4.4.1",

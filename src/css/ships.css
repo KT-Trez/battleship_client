@@ -1,0 +1,32 @@
+.ships-container {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 2rem;
+    display: flex;
+    align-items: baseline;
+    justify-content: flex-start;
+}
+
+.js-ship-1 {
+    height: 40px;
+    width: 40px;
+    background-color: aqua;
+}
+
+.js-ship-2 {
+    height: 80px;
+    width: 40px;
+    background-color: aqua;
+}
+
+.js-ship-3 {
+    height: 120px;
+    width: 40px;
+    background-color: aqua;
+}
+
+.js-ship-4 {
+    height: 160px;
+    width: 40px;
+    background-color: aqua;
+}

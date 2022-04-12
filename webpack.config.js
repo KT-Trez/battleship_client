@@ -1,3 +1,4 @@
+const Dotenv = require('dotenv-webpack');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const path = require('path');
@@ -13,7 +14,7 @@ module.exports = {
 	devtool: 'source-map',
 	entry: {
 		app: './src/app.ts',
-		dev: './src/components/Dev.ts' // load dev module
+		// dev: './src/components/Dev.ts' // load dev module
 	},
 	mode: 'development', // compile mode
 	module: {
@@ -42,6 +43,7 @@ module.exports = {
 		filename: '[name].bundle.js'
 	},
 	plugins: [
+		new Dotenv(),
 		new HtmlWebpackPlugin({
 			filename: 'index.html',
 			title: 'Warships',
