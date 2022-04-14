@@ -17,6 +17,7 @@ export default class Renderer {
 		this.shipsPlacement = false;
 
 		this.shipsPlacer = {
+			allowed: false,
 			horizontal: false,
 			length: null,
 			preview: [],
@@ -31,6 +32,20 @@ export default class Renderer {
 		const children = Array.from(display.children);
 		for (let i = 0; i < children.length; i++)
 			children[i].remove();
+	}
+
+	clearShipPreview() {
+		for (const shipTile of this.shipsPlacer.preview)
+			shipTile.classList.remove('ship-preview--collision', 'ship-preview--correct', 'ship-preview--incorrect');
+		this.shipsPlacer.preview = [];
+	}
+
+	private colorPath(pathArr: { x: number, y: number }[], colorClassName: string) {
+		for (const placementData of pathArr) {
+			const tileDOM = document.querySelector<HTMLTableCellElement>(`[data-x='${placementData.x}'][data-y='${placementData.y}']`);
+			tileDOM.classList.add(colorClassName);
+			this.shipsPlacer.preview.push(tileDOM);
+		}
 	}
 
 	createShipsSelect() {
@@ -48,14 +63,15 @@ export default class Renderer {
 			const ship = document.createElement('div');
 			Object.assign(ship, {
 				className: 'js-ship-' + shipData.length,
-				onclick: () => {
+				onclick: (event: MouseEvent & { target: HTMLDivElement }) => {
 					const ship = this.shipsPlacer.shipsLeft.find(ship => ship.length === shipData.length);
 
-					if (ship.quantity <= 0)
+					if (ship.quantity <= 0) {
+						event.target.onclick = null;
 						return;
+					}
 
 					this.shipsPlacer.length = shipData.length;
-					ship.quantity--;
 				}
 			});
 
@@ -71,53 +87,62 @@ export default class Renderer {
 				this.clearDisplay();
 				this.renderBoard(event.detail.height, event.detail.width);
 			});
+
 		this.engine.eventsInterface
-			.addEventListener('toggleShipsInput', (event: ToggleShipsInputEvent) => this.toggleShipsInput(event.detail.inputFun));
+			.addEventListener('toggleShipsInput', (event: ToggleShipsInputEvent) => this.toggleShipsInput(event.detail.checkPathFun, event.detail.registerShipFun));
+
 		this.engine.eventsInterface
 			.addEventListener('createShipsSelect', () => this.createShipsSelect());
 	}
 
-	toggleShipsInput(inputFun: Function) {
+	toggleShipsInput(checkPathFun: Function, registerShipFun: Function) {
 		const clientFields = Array.from(document.getElementsByClassName('js-client-' + SocketService.getInstance().id)) as HTMLTableCellElement[];
 		if (!this.shipsPlacement)
-			for (let i = 0; i < clientFields.length; i++)
+			for (let i = 0; i < clientFields.length; i++) { //noinspection JSUnusedGlobalSymbols
 				Object.assign(clientFields[i], {
-					onclick: async (event: MouseEvent & {target: HTMLTableCellElement}) => {
+					onclick: async (event: MouseEvent & { target: HTMLTableCellElement }) => {
 						if (this.shipsPlacer.length <= 0)
 							return;
 
-						const boardFree = (await this.engine.checkPath(parseInt(event.target.dataset.x), parseInt(event.target.dataset.y), this.shipsPlacer.horizontal, this.shipsPlacer.length)).available;
-						if (!boardFree)
+						const placementCheck = (await checkPathFun(parseInt(event.target.dataset.x), parseInt(event.target.dataset.y), this.shipsPlacer.horizontal, this.shipsPlacer.length));
+						if (!placementCheck.available)
 							return;
 
-						this.engine.registerShip(parseInt(event.target.dataset.x), parseInt(event.target.dataset.y), this.shipsPlacer.horizontal, this.shipsPlacer.length);
+						registerShipFun(parseInt(event.target.dataset.x), parseInt(event.target.dataset.y), this.shipsPlacer.horizontal, this.shipsPlacer.length);
+
+						this.shipsPlacer.shipsLeft.map(ship => {
+							if (ship.length === this.shipsPlacer.length)
+								return {
+									...ship,
+									length: ship.quantity--
+								};
+							else
+								return ship;
+						});
+						Object.assign(this.shipsPlacer, {
+							allowed: false,
+							horizontal: false,
+							length: null
+						});
+
+						this.colorPath(placementCheck.correctPath, 'ship--ally');
+						this.clearShipPreview();
 					},
-					oncontextmenu: (event: MouseEvent) => {
+					oncontextmenu: async (event: MouseEvent & { target: HTMLTableCellElement }) => {
 						event.preventDefault();
 						this.shipsPlacer.horizontal = !this.shipsPlacer.horizontal;
+
+						this.clearShipPreview();
+						await this.renderShipPreview(parseInt(event.target.dataset.x), parseInt(event.target.dataset.y), checkPathFun);
 					},
 					onmouseout: () => {
-						for (const shipTile of this.shipsPlacer.preview)
-							shipTile.style.backgroundColor = 'initial';
-						this.shipsPlacer.preview = [];
+						this.clearShipPreview();
 					},
 					onmouseover: async (event: MouseEvent & { target: HTMLTableCellElement }) => {
-						if (!this.shipsPlacer.length)
-							return
-						if (parseInt(event.target.dataset.y) + this.shipsPlacer.length > this.board.height || parseInt(event.target.dataset.x) + this.shipsPlacer.length > this.board.width)
-							return;
-
-						const placementResponse = await this.engine.checkPath(parseInt(event.target.dataset.x), parseInt(event.target.dataset.y), this.shipsPlacer.horizontal, this.shipsPlacer.length);
-
-						for (const placementData of placementResponse.correctPath) {
-							const tileDOM = document.querySelector<HTMLTableCellElement>(`[data-x='${placementData.x}'][data-y='${placementData.y}']`);
-							tileDOM.style.backgroundColor = 'red';
-
-							this.shipsPlacer.preview.push(tileDOM);
-						}
-
+						await this.renderShipPreview(parseInt(event.target.dataset.x), parseInt(event.target.dataset.y), checkPathFun);
 					}
 				});
+			}
 		else
 			for (let i = 0; i < clientFields.length; i++)
 				Object.assign(clientFields[i], {
@@ -152,5 +177,19 @@ export default class Renderer {
 		}
 
 		document.getElementById('js-display').appendChild(board);
+	}
+
+	async renderShipPreview(x: number, y: number, checkPathFun: Function) {
+		if (!this.shipsPlacer.length)
+			return
+		if ((y + this.shipsPlacer.length > this.board.height && !this.shipsPlacer.horizontal) || (x + this.shipsPlacer.length > this.board.width && this.shipsPlacer.horizontal))
+			return;
+
+		const placementResponse = await checkPathFun(x, y, this.shipsPlacer.horizontal, this.shipsPlacer.length);
+		this.shipsPlacer.allowed = placementResponse.available;
+
+		this.colorPath(placementResponse.adjoinTilesArr, 'ship-preview--collision')
+		this.colorPath(placementResponse.correctPath, 'ship-preview--correct');
+		this.colorPath(placementResponse.takenPath, 'ship-preview--incorrect');
 	}
 }

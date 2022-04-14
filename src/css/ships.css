@@ -7,10 +7,32 @@
     justify-content: flex-start;
 }
 
+.ship--ally {
+    background-color: bisque;
+}
+
+.ship-preview--collision {
+    background-color: orange;
+    /*opacity: 0.25;*/
+}
+
+.ship-preview--correct {
+    background-color: green;
+}
+
+.ship-preview--incorrect {
+    background-color: darkred;
+    opacity: 1 !important;
+}
+
 .js-ship-1 {
     height: 40px;
     width: 40px;
     background-color: aqua;
+}
+
+.js-ship--placed {
+    opacity: 0.25;
 }
 
 .js-ship-2 {

@@ -22,7 +22,7 @@ export default class Engine {
 		this.eventsInterface.dispatchEvent(event);
 	}
 
-	checkPath(x: number, y: number, horizontally: boolean, length: number): Promise<CheckPathResponse> {
+	private checkPath(x: number, y: number, horizontally: boolean, length: number): Promise<CheckPathResponse> {
 		return new Promise(resolve => {
 			SocketService.getInstance().emit('checkPath', parseInt(sessionStorage.getItem('roomID')), x, y, horizontally, length, response => {
 				resolve(response);
@@ -37,14 +37,15 @@ export default class Engine {
 		});
 		this.buildAndDispatchEvent('toggleShipsInput', {
 			checkPathFun: this.checkPath,
-			inputFun: this.registerShip
+			registerShipFun: this.registerShip
 		});
 
 		this.buildAndDispatchEvent('createShipsSelect');
 	}
 
-	registerShip(x: number, y: number, horizontally: boolean, length: number) {
+	private registerShip(x: number, y: number, horizontally: boolean, length: number) {
 		SocketService.getInstance().emit('registerShip', parseInt(sessionStorage.getItem('roomID')), x, y, horizontally, length);
-		this.shipsPlaced++;
+		// todo: fix 'this' context
+		//this.shipsPlaced++;
 	}
 }
