@@ -1,4 +1,5 @@
 import config from '../config';
+import DOM from './DOM';
 import Engine from './Engine';
 import SocketService from './Socket';
 
@@ -76,6 +77,10 @@ export default class Renderer {
 			});
 
 			shipsContainer.appendChild(ship);
+
+			DOM.createDynamicElement('p', {
+				innerText: shipData.quantity + 'x'
+			}, ship, 'ship-' + shipData.length);
 		}
 
 		document.getElementById('js-display').appendChild(shipsContainer);
@@ -93,6 +98,42 @@ export default class Renderer {
 
 		this.engine.eventsInterface
 			.addEventListener('createShipsSelect', () => this.createShipsSelect());
+
+		this.engine.eventsInterface
+			.addEventListener('game-started', () => {
+				this.clearDisplay();
+
+				const navDOM = DOM.createElement('nav', {}, document.getElementById('js-display'));
+
+				// todo:  render players list
+				//for (const navDOMElement of navDOM) {
+				//
+				//}
+				DOM.createDynamicElement('p', {}, navDOM, 'info-turn');
+
+				// timer & room ID
+				const infoContainerDOM = DOM.execute('div;;info', navDOM);
+
+				DOM.createDynamicElement('p', {
+					className: 'info-timer'
+				}, infoContainerDOM, 'info-timer');
+
+				const roomIDDOM = DOM.execute('p;;info-id;;ID:', infoContainerDOM);
+				DOM.execute(`span;;info-id--highlight;;${sessionStorage.getItem('roomID')}`, roomIDDOM);
+				//	todo: handle rest of the boards
+			});
+
+		this.engine.eventsInterface
+			.addEventListener('ships-placed', (event: ShipsPlacedEvent) => {
+				DOM.createElement('button', {
+					className: 'board-button--ready',
+					innerText: 'Gotów',
+					onclick: (clickEvent: MouseEvent & { target: HTMLButtonElement }) => {
+						event.detail.toggleReadyStatusFun();
+						clickEvent.target.innerText = 'Anuluj';
+					}
+				}, document.getElementById('js-display'));
+			});
 	}
 
 	toggleShipsInput(checkPathFun: Function, registerShipFun: Function) {
@@ -103,6 +144,8 @@ export default class Renderer {
 					onclick: async (event: MouseEvent & { target: HTMLTableCellElement }) => {
 						if (this.shipsPlacer.length <= 0)
 							return;
+
+						const shipLength = this.shipsPlacer.length;
 
 						const placementCheck = (await checkPathFun(parseInt(event.target.dataset.x), parseInt(event.target.dataset.y), this.shipsPlacer.horizontal, this.shipsPlacer.length));
 						if (!placementCheck.available)
@@ -125,6 +168,10 @@ export default class Renderer {
 							length: null
 						});
 
+						console.log(this.shipsPlacer.shipsLeft)
+						DOM.updateDynamicElement('ship-' + shipLength, {
+							innerText: this.shipsPlacer.shipsLeft.find(ship => ship.length === shipLength).quantity + 'x'
+						});
 						this.colorPath(placementCheck.correctPath, 'ship--ally');
 						this.clearShipPreview();
 					},

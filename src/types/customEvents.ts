@@ -5,6 +5,12 @@ interface CreateBoardEvent extends CustomEvent {
 	}
 }
 
+interface ShipsPlacedEvent extends CustomEvent {
+	detail: {
+		toggleReadyStatusFun: Function;
+	}
+}
+
 interface ToggleShipsInputEvent extends CustomEvent {
 	detail: {
 		checkPathFun: Function;
