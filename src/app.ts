@@ -2,9 +2,8 @@ import './css/board.css';
 import './css/fonts.css';
 import './css/master.css';
 import './css/ships.css';
-import DOM from './classes/DOM';
 import Engine from './classes/Engine';
-import Renderer from './classes/Renderer';
+import RendererManager from './classes/RendererManager';
 import SocketService from './classes/Socket';
 
 
@@ -15,7 +14,7 @@ window.addEventListener('DOMContentLoaded', () => {
 	const socket = SocketService.getInstance();
 	const createGame = () => {
 		const game = new Engine();
-		new Renderer(game);
+		new RendererManager(game);
 		game.init();
 	};
 
@@ -42,5 +41,4 @@ window.addEventListener('DOMContentLoaded', () => {
 
 		createGame();
 	};
-
 });

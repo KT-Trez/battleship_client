@@ -12,6 +12,7 @@
     "dotenv-webpack": "^7.1.0",
     "html-webpack-plugin": "^5.5.0",
     "mini-css-extract-plugin": "^2.6.0",
+    "moment": "^2.29.3",
     "socket.io-client": "^4.4.1",
     "ts-loader": "^9.2.8",
     "webpack": "^5.71.0",

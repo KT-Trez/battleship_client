@@ -1,7 +1,9 @@
+console.log('Loaded: DOM.ts');
+
 export default class DOM {
 	private static virtualDynamicMap = new Map<string, HTMLElement>();
 
-	static createElement(name: keyof HTMLElementTagNameMap, options: object, parent: HTMLElement) {
+	static createElement(name: keyof HTMLElementTagNameMap, options: object, parent: HTMLElement | Element) {
 		const element = document.createElement(name);
 		Object.assign(element, options);
 
@@ -9,33 +11,33 @@ export default class DOM {
 		return element;
 	}
 
-	static createDynamicElement(name: keyof HTMLElementTagNameMap, options: object, parent: HTMLElement, dynamicID: string)  {
+	static createDynamicElement(name: keyof HTMLElementTagNameMap, options: object, parent: HTMLElement, dynamicID: string) {
 		const element = this.createElement(name, options, parent);
 		this.virtualDynamicMap.set(dynamicID, element);
 
 		return element;
 	}
 
-	static execute(jsx: string, parent: HTMLElement, parameters?: object) {
-		const args = jsx.split(';;');
+	static newCreateElement(tagName: keyof HTMLElementTagNameMap, className: string | string[], innerText?: string | null, parent?: HTMLElement | Element) {
+		const element = document.createElement(tagName);
+		if (!Array.isArray(className))
+			element.classList.add(className);
+		else
+			element.classList.add(...className);
 
-		const element = document.createElement(args[0]);
-		Object.assign(element, {
-			className: args[1] ?? null,
-			innerText: args[2] ?? null
-		});
-		Object.assign(element, parameters);
+		if (innerText)
+			element.innerText = innerText;
 
-		const attributesArr = args.splice(0, 3);
-		for (const attribute of attributesArr)
-			element.setAttribute(attribute.split('|')[0], attribute.split('|')[1]);
-
-		parent.appendChild(element);
+		if (parent)
+			parent.appendChild(element);
 
 		return element;
 	}
 
 	static updateDynamicElement(id: string, newValue: object) {
+		if (!this.virtualDynamicMap.has(id))
+			throw new Error('There is no dynamic element with id: ' + id);
+
 		const element = this.virtualDynamicMap.get(id);
 		Object.assign(element, newValue);
 	}

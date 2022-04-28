@@ -1,6 +1,20 @@
-.board-cell {
+.boards-container {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 2rem;
+    display: flex;
+    justify-content: space-evenly;
+}
+
+.board {
+    border-collapse: collapse;
+    border: 1px solid #BBE1FA;
+}
+
+.board-tile {
     /* todo: dynamic height and width */
-    height: 50px;
-    width: 50px;
-    background-color: gray;
+    height: 40px;
+    width: 40px;
+    background-color: #0F4C75;
+    border: 1px dotted #BBE1FA;
 }

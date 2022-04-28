@@ -1,19 +1,47 @@
-interface CreateBoardEvent extends CustomEvent {
+interface GameInit extends CustomEvent {
 	detail: {
-		height: number;
-		width: number;
-	}
+		board: {
+			height: number;
+			width: number;
+		};
+	};
 }
 
-interface ShipsPlacedEvent extends CustomEvent {
+interface GameStarted extends CustomEvent {
 	detail: {
-		toggleReadyStatusFun: Function;
-	}
+		playersIDs: string[];
+		registerShotFun: Function;
+	};
 }
 
-interface ToggleShipsInputEvent extends CustomEvent {
+interface TileHit extends TileShot {
 	detail: {
-		checkPathFun: Function;
-		registerShipFun: Function;
-	}
+		coordinates: {
+			x: number
+			y: number;
+		};
+		enemiesIDs: string[];
+		// todo: fix inheritance
+		shooterID: string;
+	};
+}
+
+interface TileShot extends CustomEvent {
+	detail: {
+		coordinates: {
+			x: number
+			y: number;
+		};
+		shooterID: string;
+	};
+}
+
+interface Turn extends CustomEvent {
+	detail: {
+		playerID: string;
+		uptime: {
+			duration: number;
+			startedAt: Date;
+		};
+	};
 }

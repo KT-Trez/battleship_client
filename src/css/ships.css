@@ -4,16 +4,32 @@
     padding: 2rem;
     display: flex;
     align-items: baseline;
-    justify-content: flex-start;
+    justify-content: center;
 }
 
 .ship--ally {
-    background-color: bisque;
+    background-color: #3282B8;
+}
+
+.ship--hit {
+
+}
+
+.ship--miss {
+
+}
+
+/* todo: add ship preview radius */
+.ship-preview {
+    opacity: 0.75;
 }
 
 .ship-preview--collision {
     background-color: orange;
-    /*opacity: 0.25;*/
+}
+
+.ship-select--used {
+    opacity: 0.5;
 }
 
 .ship-preview--correct {
@@ -25,30 +41,77 @@
     opacity: 1 !important;
 }
 
+.ship-select {
+    color: white;
+    background-color: #3282B8;
+    font-family: Roboto, monospace;
+    border-radius: 5px;
+    box-sizing: border-box;
+    margin-right: 15px;
+    padding-left: 5px;
+    padding-top: 5px;
+}
+
+.ship-select:active {
+    transform: translateY(2px);
+}
+
+.ship-select:hover:not(.ship-select--used) {
+    opacity: 0.75;
+}
+
+.select-buttons {
+    align-self: center;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.select-button {
+    min-width: 125px;
+    color: white;
+    background-color: #5EBFFF;
+    font-family: Roboto, monospace;
+    font-size: 0.8rem;
+    border: 1px transparent;
+    border-radius: 7px;
+    padding: 8px;
+}
+
+.select-button:active {
+    opacity: 0.5;
+    transform: translateY(2px);
+}
+
+.select-button:hover {
+    opacity: 0.9;
+}
+
+.select-button--ready {
+    font-family: "Roboto Bold", monospace;
+    background-color: #EB6228;
+}
+
 .js-ship-1 {
     height: 40px;
     width: 40px;
-    background-color: aqua;
-}
-
-.js-ship--placed {
-    opacity: 0.25;
 }
 
 .js-ship-2 {
     height: 80px;
     width: 40px;
-    background-color: aqua;
 }
 
 .js-ship-3 {
     height: 120px;
     width: 40px;
-    background-color: aqua;
 }
 
 .js-ship-4 {
     height: 160px;
     width: 40px;
-    background-color: aqua;
+}
+
+.js-ship--placed {
+    opacity: 0.25;
 }
