@@ -2,6 +2,8 @@ import {io, Socket} from 'socket.io-client';
 import {ClientToServerEvents, ServerToClientEvents} from '../types/socket';
 
 
+console.log('Loaded: Socket.ts');
+
 export default class SocketService {
 	private static instance: Socket<ServerToClientEvents, ClientToServerEvents>;
 

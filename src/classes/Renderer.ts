@@ -46,22 +46,23 @@ export default class Renderer {
 
 		// current player info & turn feedback
 		DOM.createDynamicElement('p', {
-			className: 'turn-feedback'
+			className: 'header-item turn-feedback'
 		}, headerDOM, 'info-turn');
 
 		// game info
 		const infoDOM = DOM.newCreateElement('div', 'turn-info', null, headerDOM);
 		DOM.createDynamicElement('p', {
-			className: 'info-entry'
+			className: 'header-item info-entry'
 		}, infoDOM, 'info-timer');
-		DOM.newCreateElement('p', 'info-entry', 'ID: ' + sessionStorage.getItem('roomID'), infoDOM);
+		const roomIDDOM = DOM.newCreateElement('p', ['header-item', 'info-entry'], 'ID:', infoDOM);
+		DOM.newCreateElement('span', 'info-entry--bold', sessionStorage.getItem('roomID'), roomIDDOM);
 
 		document.getElementById('js-display').appendChild(headerDOM);
 	}
 
 	renderPlayers(playersIDs: string[]) {
 		for (const playerID of playersIDs) {
-			const playerDOM = DOM.newCreateElement('p', 'player', playerID, document.getElementById('js-players'));
+			const playerDOM = DOM.newCreateElement('p', ['header-item', 'player'], playerID, document.getElementById('js-players'));
 			playerDOM.id = 'js-' + playerID;
 		}
 	}
@@ -77,9 +78,10 @@ export default class Renderer {
 		}, document.getElementsByClassName('select-buttons').item(0));
 	}
 
-	renderTileShot(clientID: string, x: number, y: number, type: 'hit' | 'miss', enemiesIDs?: string[]) {
+	renderTileShot(shooterID: string, x: number, y: number, type: 'hit' | 'miss', enemiesIDs: string[]) {
+		console.log(shooterID, x, y, enemiesIDs);
 		for (const enemyID of enemiesIDs) {
-			const tile = document.querySelector(`[class='js-client-${enemyID}'][data-x='${x}'][data-y='${y}']`);
+			const tile = document.querySelector(`[class='board-tile js-client-${enemyID}'][data-x='${x}'][data-y='${y}']`);
 
 			Object.assign(tile, {
 				onclick: null
@@ -109,10 +111,16 @@ export default class Renderer {
 		clearInterval(this.turnInterval);
 		this.turnInterval = setInterval(() => {
 			const futureDate = new Date(statedAt).getTime() + duration;
-			const timeLeft = new Date(futureDate - new Date().getTime());
+			const timeLeft = moment.duration(futureDate - new Date().getTime(), 'millisecond');
+
+			const doubleDigitTime = (time: number) => {
+			  if (time.toString().length === 1)
+				  return '0' + time;
+			  return time;
+			};
 
 			DOM.updateDynamicElement('info-timer', {
-				innerText: moment(timeLeft).format('HH:mm:ss')
+				innerText: doubleDigitTime(timeLeft.hours()) + ':' + doubleDigitTime(timeLeft.minutes()) + ':' + doubleDigitTime(timeLeft.seconds())
 			});
 		}, 500);
 	}

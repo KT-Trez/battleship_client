@@ -10,28 +10,22 @@ interface GameInit extends CustomEvent {
 interface GameStarted extends CustomEvent {
 	detail: {
 		playersIDs: string[];
-		registerShotFun: Function;
 	};
 }
 
-interface TileHit extends TileShot {
+interface GameEnded extends CustomEvent {
+	detail: {
+		playerID: string;
+	};
+}
+
+interface ShotEvent extends CustomEvent {
 	detail: {
 		coordinates: {
 			x: number
 			y: number;
 		};
 		enemiesIDs: string[];
-		// todo: fix inheritance
-		shooterID: string;
-	};
-}
-
-interface TileShot extends CustomEvent {
-	detail: {
-		coordinates: {
-			x: number
-			y: number;
-		};
 		shooterID: string;
 	};
 }

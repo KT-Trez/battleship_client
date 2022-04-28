@@ -2,6 +2,7 @@ import config from '../config';
 import DOM from './DOM';
 import Engine from './Engine';
 import Renderer from './Renderer';
+import gameEnded from './RendererManagerEvents/gameEnded';
 import gameInit from './RendererManagerEvents/gameInit';
 import gameStarted from './RendererManagerEvents/gameStarted';
 import selectShip from './RendererManagerEvents/selectShip';
@@ -96,7 +97,7 @@ export default class RendererManager {
 			// todo: move all sockets to engine
 			SocketService.getInstance().emit('registerShipsRandom', parseInt(sessionStorage.getItem('roomID')), forceArr => {
 				this.renderer.renderStartButton(this.engine.toggleReadyStatus);
-				console.log(forceArr);
+				this.colorPath(forceArr, 'ship--ally');
 			});
 		};
 
@@ -109,20 +110,19 @@ export default class RendererManager {
 
 		this.engine.eventsInterface.addEventListener('game-init', event => gameInit.call(this, event));
 
-		this.engine.eventsInterface
-			.addEventListener('game-started', (event: GameStarted) => gameStarted.call(this, event));
+		this.engine.eventsInterface.addEventListener('game-started', event => gameStarted.call(this, event));
 
 		this.engine.eventsInterface
 			.addEventListener('ships-placed', () => this.renderer.renderStartButton(this.engine.toggleReadyStatus));
 
 		this.engine.eventsInterface
-			.addEventListener('tile-hit', (event: TileHit) => {
-				this.renderer.renderTileShot(event.detail.shooterID, event.detail.coordinates.x, event.detail.coordinates.y, 'hit');
+			.addEventListener('tile-hit', (event: ShotEvent) => {
+				this.renderer.renderTileShot(event.detail.shooterID, event.detail.coordinates.x, event.detail.coordinates.y, 'hit', event.detail.enemiesIDs);
 			});
 
 		this.engine.eventsInterface
-			.addEventListener('tile-miss', (event: TileHit) => {
-				this.renderer.renderTileShot(event.detail.shooterID, event.detail.coordinates.x, event.detail.coordinates.y, 'miss');
+			.addEventListener('tile-miss', (event: ShotEvent) => {
+				this.renderer.renderTileShot(event.detail.shooterID, event.detail.coordinates.x, event.detail.coordinates.y, 'miss', event.detail.enemiesIDs);
 			});
 
 		this.engine.eventsInterface
@@ -130,6 +130,8 @@ export default class RendererManager {
 				this.currentPlayerID = event.detail.playerID;
 				this.renderer.renderTurn(event.detail.playerID, event.detail.uptime.startedAt, event.detail.uptime.duration);
 			});
+
+		this.engine.eventsInterface.addEventListener('game-win', event => gameEnded.call(this, event));
 	}
 
 	async renderShipPreview(x: number, y: number) {

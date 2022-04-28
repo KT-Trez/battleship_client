@@ -8,6 +8,10 @@ import boardCellMouseOver from './boardCellMouseOver';
 
 export default function gameInit(event: GameInit) {
 	this.clearDisplay();
+	// create header
+	this.renderer.renderHeader();
+
+	// set board dimension and create board container
 	this.assignBoardDimensions(event.detail.board.height, event.detail.board.width);
 	const boardsContainerDOM = DOM.newCreateElement('div', 'boards-container', null, document.getElementById('js-display'));
 

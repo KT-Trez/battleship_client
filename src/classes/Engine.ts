@@ -21,6 +21,7 @@ export default class Engine {
 			this.shipsCount += shipData.quantity;
 
 		this.registerShip = this.registerShip.bind(this);
+		this.registerShot = this.registerShot.bind(this);
 		this.toggleReadyStatus = this.toggleReadyStatus.bind(this);
 		// todo: secure all SocketService calls in case of incorrect data
 	}
@@ -64,9 +65,11 @@ export default class Engine {
 			});
 	}
 
-	private registerShot(x: number, y: number) {
+	registerShot(x: number, y: number) {
 		this.shotsFired++;
-		SocketService.getInstance().emit('registerShot', parseInt(sessionStorage.getItem('roomID')), x, y);
+		SocketService.getInstance().emit('registerShot', parseInt(sessionStorage.getItem('roomID')), x, y, hasHit => {
+			console.log(hasHit);
+		});
 	}
 
 	toggleReadyStatus() {
@@ -80,11 +83,11 @@ export default class Engine {
 		const gameStartedFun = (playersIDs: string[]) => {
 			console.log(playersIDs);
 			this.createAndDispatchEvent('game-started', {
-				playersIDs,
-				registerShotFun: this.registerShot
+				playersIDs
 			});
 		};
 		const hitFun = (shooterID: string, x: number, y: number, enemiesIDs: string[]) => {
+			console.log(shooterID, x, y, enemiesIDs);
 			this.createAndDispatchEvent('tile-hit', {
 				coordinates: {
 					x,
@@ -94,12 +97,14 @@ export default class Engine {
 				shooterID
 			});
 		};
-		const missFun = (shooterID: string, x: number, y: number) => {
+		const missFun = (shooterID: string, x: number, y: number, enemiesIDs: string[]) => {
+			console.log(shooterID, x, y);
 			this.createAndDispatchEvent('tile-miss', {
 				coordinates: {
 					x,
 					y
 				},
+				enemiesIDs,
 				shooterID
 			})
 		};

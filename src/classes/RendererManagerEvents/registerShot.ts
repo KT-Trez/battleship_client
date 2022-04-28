@@ -1,9 +1,9 @@
 import SocketService from '../Socket';
 
 
-export default function registerShot(event: MouseEvent & { target: HTMLTableCellElement }, registerShotFun: Function) {
+export default function registerShot(event: MouseEvent & { target: HTMLTableCellElement }) {
 	if (this.currentPlayerID === SocketService.getInstance().id)
-		registerShotFun(event.target.dataset.x, event.target.dataset.y);
+		this.engine.registerShot(parseInt(event.target.dataset.x), parseInt(event.target.dataset.y));
 	else
 		alert('Poczekaj na swoją turę!');
 	// todo: add fancy information

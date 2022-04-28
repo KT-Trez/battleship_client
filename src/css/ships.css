@@ -12,11 +12,11 @@
 }
 
 .ship--hit {
-
+    background-color: red;
 }
 
 .ship--miss {
-
+    background-color: black;
 }
 
 /* todo: add ship preview radius */

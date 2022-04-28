@@ -12,3 +12,8 @@ interface ShipPlacer {
 	preview: HTMLTableCellElement[];
 	shipsLeft: { length: number; quantity: number }[];
 }
+
+interface ShipData {
+	length: number;
+	quantity: number;
+}

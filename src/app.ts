@@ -1,5 +1,6 @@
 import './css/board.css';
 import './css/fonts.css';
+import './css/header.css';
 import './css/master.css';
 import './css/ships.css';
 import Engine from './classes/Engine';
