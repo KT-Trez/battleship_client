@@ -12,11 +12,33 @@
 
 <!-- main element to display content -->
 <div id="js-display">
-    <button id='js-create-room'>Stwórz</button>
-    <div>
-        <button id='js-join-room'>Dołącz</button>
-        <input id='js-join-room-input--id' type='number'>
-        <input id='js-join-room-input--nick' type='text'>
+    <div class='menu'>
+        <section class='menu-section' id='js-mode-select'>
+            <button class='section-button' id='js-mode-select--solo'>Solo</button>
+            <button class='section-button' id='js-mode-select--multi'>Multi</button>
+        </section>
+
+        <div class='menu-section js-hide' id='js-mode-type-select'>
+            <button class='section-button' id='js-mode-type-select--hot-seats'>Hot seats</button>
+            <button class='section-button' id='js-mode-type-select--online'>Online</button>
+        </div>
+
+        <div class='menu-section js-hide' id='js-action'>
+            <button class='section-button' id='js-action--join'>Dołącz</button>
+            <button class='section-button' id='js-action--create'>Stwórz</button>
+
+            <div class='section-input'>
+                <div class='input-wrapper'>
+                    <label class='input-label' for='js-input--nick'>Nick:</label>
+                    <input class='input-field' id='js-input--nick' placeholder='WildMonkey2137' required type='text'>
+                </div>
+
+                <div class='input-wrapper'>
+                    <label class='input-label' for='js-input--room-id'>Room's ID:</label>
+                    <input class='input-field' id='js-input--room-id' placeholder='16513253360365670' type='number'>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 

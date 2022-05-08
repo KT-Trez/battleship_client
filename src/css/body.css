@@ -1,0 +1,80 @@
+.menu {
+    height: 100%;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.menu-section {
+    background-color: #496778;
+    width: 40%;
+    border: 2px dotted #709FB8;
+    border-radius: 25px;
+    padding: 75px;
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    justify-content: space-evenly;
+}
+
+.section-button {
+    color: white;
+    background-color: #709FB8;
+    min-width: 25%;
+    font-family: Roboto, monospace;
+    font-size: 1.5em;
+    border: 1px transparent;
+    border-radius: 5px;
+    box-shadow: 1px 1px 1px 0 white;
+    padding: 10px;
+}
+
+.section-button:hover {
+    opacity: 0.5;
+}
+
+.section-button:active {
+    opacity: 0.25;
+    transform: translateY(0.1em);
+}
+
+.section-input {
+    width: 100%;
+    background-color: #517285;
+    margin-top: 25px;
+    margin-bottom: -25px;
+    padding: 25px;
+    display: flex;
+    align-items: center;
+    justify-content: space-evenly;
+}
+
+.input-wrapper {
+    display: flex;
+    flex-direction: column;
+}
+
+.input-label {
+    color: #80B3D1;
+    font-family: "Roboto Bold", monospace;
+    font-size: 1em;
+    display: block;
+}
+
+.input-field {
+    font-family: Roboto, monospace;
+    font-size: 0.825em;
+    border: 1px transparent;
+    border-radius: 5px;
+    margin-top: 5px;
+    padding: 8px;
+}
+
+.js-hide {
+    display: none;
+}
+
+.js-hide--soft {
+    visibility: hidden;
+}

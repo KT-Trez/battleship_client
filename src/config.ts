@@ -1,4 +1,7 @@
 const config = {
+	Menu: {
+		TransitionDuration: 200
+	},
 	ShipsList: [
 		{
 			length: 4,
