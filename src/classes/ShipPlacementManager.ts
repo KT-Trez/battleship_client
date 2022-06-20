@@ -1,17 +1,17 @@
-import Engine from '../Engine';
+import API from './API';
 
 
 console.log('Loaded: ShipPlacementManager.ts');
 
 // todo: introduce ShipPlacementManager to RendererManager
 export default class ShipPlacementManager {
-	private api: Engine;
+	private api: API;
 
 	isCorrect: boolean;
 	private isHorizontal: boolean;
 	private readonly shipLength: number;
 
-	constructor(api: Engine, shipLength: number) {
+	constructor(api: API, shipLength: number) {
 		this.api = api;
 		this.isHorizontal = false;
 		this.shipLength = shipLength;

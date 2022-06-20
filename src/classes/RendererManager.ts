@@ -1,6 +1,6 @@
 import config from '../config';
 import DOM from './DOM';
-import Engine from './Engine';
+import API from './API';
 import Renderer from './Renderer';
 import gameEnded from './RendererManagerEvents/gameEnded';
 import gameInit from './RendererManagerEvents/gameInit';
@@ -17,12 +17,12 @@ export default class RendererManager {
 		width: number
 	};
 	private currentPlayerID: string | null;
-	private readonly engine: Engine;
+	private readonly engine: API;
 	private readonly renderer: Renderer;
 	private readonly shipsPlacer: ShipPlacer;
 	private shipsPlacement: boolean;
 
-	constructor(engine: Engine) {
+	constructor(engine: API) {
 		this.currentPlayerID = null;
 		this.engine = engine;
 		this.renderer = new Renderer();
@@ -96,7 +96,7 @@ export default class RendererManager {
 		placeRandomButtonDOM.onclick = () => {
 			// todo: move all sockets to engine
 			SocketService.getInstance().emit('registerShipsRandom', parseInt(sessionStorage.getItem('roomID')), forceArr => {
-				this.renderer.renderStartButton(this.engine.toggleReadyStatus);
+				this.renderer.renderStartButton(this.engine.toggleIsClientReady);
 				this.colorPath(forceArr, 'ship--ally');
 			});
 		};
@@ -105,33 +105,26 @@ export default class RendererManager {
 	}
 
 	initListeners() {
-		this.engine.eventsInterface
+		this.engine.events
 			.addEventListener('createShipsSelect', () => this.createShipsSelect());
 
-		this.engine.eventsInterface.addEventListener('game-init', event => gameInit.call(this, event));
+		this.engine.events.addEventListener('game-init', event => gameInit.call(this, event));
 
-		this.engine.eventsInterface.addEventListener('game-started', event => gameStarted.call(this, event));
+		this.engine.events.addEventListener('game-started', event => gameStarted.call(this, event));
 
-		this.engine.eventsInterface
-			.addEventListener('ships-placed', () => this.renderer.renderStartButton(this.engine.toggleReadyStatus));
+		this.engine.events
+			.addEventListener('ships-placed', () => this.renderer.renderStartButton(this.engine.toggleIsClientReady));
 
-		this.engine.eventsInterface
-			.addEventListener('tile-hit', (event: ShotEvent) => {
-				this.renderer.renderTileShot(event.detail.shooterID, event.detail.coordinates.x, event.detail.coordinates.y, 'hit', event.detail.enemiesIDs);
+		this.engine.events.addEventListener('game-shot', (event: GameShot) => {
+				this.renderer.renderTileShot(event.detail.shooterID, event.detail.coordinates.x, event.detail.coordinates.y, event.detail.result, event.detail.victimsIDs);
 			});
 
-		this.engine.eventsInterface
-			.addEventListener('tile-miss', (event: ShotEvent) => {
-				this.renderer.renderTileShot(event.detail.shooterID, event.detail.coordinates.x, event.detail.coordinates.y, 'miss', event.detail.enemiesIDs);
+		this.engine.events.addEventListener('game-next_turn', (event: GameNextTurn) => {
+				this.currentPlayerID = event.detail.leadPlayerID;
+				this.renderer.renderTurn(event.detail.leadPlayerID, event.detail.turnUptime.startedAt, event.detail.turnUptime.duration);
 			});
 
-		this.engine.eventsInterface
-			.addEventListener('turn', (event: Turn) => {
-				this.currentPlayerID = event.detail.playerID;
-				this.renderer.renderTurn(event.detail.playerID, event.detail.uptime.startedAt, event.detail.uptime.duration);
-			});
-
-		this.engine.eventsInterface.addEventListener('game-win', event => gameEnded.call(this, event));
+		this.engine.events.addEventListener('game-win', event => gameEnded.call(this, event));
 	}
 
 	async renderShipPreview(x: number, y: number) {
@@ -141,10 +134,10 @@ export default class RendererManager {
 			return;
 
 		const placementResponse = await this.engine.checkPath(x, y, this.shipsPlacer.horizontal, this.shipsPlacer.length);
-		this.shipsPlacer.allowed = placementResponse.available;
+		this.shipsPlacer.allowed = placementResponse.isPlacementAvailable;
 
-		this.colorPath(placementResponse.adjoinTilesArr, 'ship-preview--collision')
-		this.colorPath(placementResponse.correctPath, 'ship-preview--correct');
-		this.colorPath(placementResponse.takenPath, 'ship-preview--incorrect');
+		this.colorPath(placementResponse.tilesContactingObstacles, 'ship-preview--collision')
+		this.colorPath(placementResponse.tilesWithCorrectPlacement, 'ship-preview--correct');
+		this.colorPath(placementResponse.tilesAlreadyTaken, 'ship-preview--incorrect');
 	}
 }

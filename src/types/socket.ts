@@ -1,17 +1,17 @@
 export interface ClientToServerEvents {
-	checkPath: (roomID: number, x: number, y: number, horizontally: boolean, length: number, callback: (response: CheckPathResponse) => void) => void;
+	changeStatus: (roomID: number, readyStatus: boolean) => void;
+	checkPath: (roomID: number, coordinates: Coordinates, isHorizontal: boolean, length: number, callback: (placement: PlacementData) => void) => void;
 	createRoom: (callback: (roomID: number) => void) => void;
-	joinRoom: (roomID: number, nick: string) => void;
-	registerShip: (roomID: number, x: number, y: number, horizontally: boolean, length: number) => void;
-	registerShipsRandom: (roomID: number, callback: (forceArr: { x: number, y: number }[]) => void) => void
-	registerShot: (roomID: number, x: number, y: number, callback: (result: boolean) => void) => void;
-	startGame: (roomID: number, readyStatus: boolean) => void;
+	joinRoom: (roomID: number, nick: string, callback: (status: boolean) => void) => void;
+	leaveRoom: (roomID: number) => void;
+	registerShip: (roomID: number, coordinates: Coordinates, isHorizontal: boolean, length: number, callback: (status: boolean) => void) => void;
+	registerShipsRandom: (roomID: number, callback: (shipsCoordinates: Coordinates[]) => void) => void;
+	registerShot: (roomID: number, coordinates: Coordinates, callback: (hasHit: boolean) => void) => void;
 }
 
 export interface ServerToClientEvents {
-	gameStarted: (playersIDs: string[]) => void;
-	hit: (shooterID: string, x: number, y: number, enemiesIDs: string[]) => void;
-	miss: (shooterID: string, x: number, y: number, enemiesIDs: string[]) => void;
+	gameStarted: (playersIDs: Client[]) => void;
 	nextTurn: (playerID: string, startedAt: Date, duration: number) => void;
+	shot: (playerID: string, result: 'hit' | 'miss', coordinates: Coordinates, enemiesIDs: string[]) => void;
 	win: (playerID: string) => void;
 }

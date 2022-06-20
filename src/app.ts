@@ -4,7 +4,7 @@ import './css/fonts.css';
 import './css/header.css';
 import './css/master.css';
 import './css/ships.css';
-import Engine from './classes/Engine';
+import API from './classes/API';
 import RendererManager from './classes/RendererManager';
 import SocketService from './classes/Socket';
 import config from './config';
@@ -16,9 +16,9 @@ console.log('Loaded: app.ts');
 window.addEventListener('DOMContentLoaded', () => {
 	const socket = SocketService.getInstance();
 	const createGame = () => {
-		const game = new Engine();
-		new RendererManager(game);
-		game.init();
+		const api = new API();
+		new RendererManager(api);
+		api.startGame();
 	};
 
 	// sections
@@ -39,7 +39,7 @@ window.addEventListener('DOMContentLoaded', () => {
 
 	// 'js-mode-type' handling
 	document.getElementById('js-mode-type-select--hot-seats').onclick = () => {
-	// todo: implement hot-seats mode
+		// todo: implement hot-seats mode
 	};
 	document.getElementById('js-mode-type-select--online').onclick = () => {
 		setTimeout(() => {
@@ -60,9 +60,12 @@ window.addEventListener('DOMContentLoaded', () => {
 		// create room, get its ID and join it | save room's ID
 		socket.emit('createRoom', roomID => {
 			sessionStorage.setItem('roomID', roomID.toString());
-			SocketService.getInstance().emit('joinRoom', roomID, nickDOM.value);
-
-			createGame();
+			SocketService.getInstance().emit('joinRoom', roomID, nickDOM.value, status => {
+				if (status)
+					createGame();
+				else
+					console.error('Cannot join room');
+			});
 		});
 	};
 	document.getElementById('js-action--join').onclick = () => {
@@ -74,8 +77,13 @@ window.addEventListener('DOMContentLoaded', () => {
 
 		// join to room | save room's ID
 		sessionStorage.setItem('roomID', roomIDDOM.value);
-		SocketService.getInstance().emit('joinRoom', parseInt(roomIDDOM.value), nickDOM.value);
-
-		createGame();
+		SocketService.getInstance().emit('joinRoom', parseInt(roomIDDOM.value), nickDOM.value, status => {
+			if (status)
+				createGame();
+			else {
+				console.error('Cannot join room');
+				alert('Incorrect room ID!');
+			}
+		});
 	};
 });
