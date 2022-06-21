@@ -8,11 +8,11 @@ export default async function boardCellClick(event: MouseEvent & { target: HTMLT
 	const shipLength = this.shipsPlacer.length;
 	const chosenShip = this.shipsPlacer.shipsLeft.find((ship: { length: number, quantity: number }) => ship.length === this.shipsPlacer.length);
 
-	const placementCheck = await this.engine.checkPath(parseInt(event.target.dataset.x), parseInt(event.target.dataset.y), this.shipsPlacer.horizontal, this.shipsPlacer.length);
-	if (!placementCheck.available)
+	const placementCheck: PlacementData = await this.api.checkPath(parseInt(event.target.dataset.x), parseInt(event.target.dataset.y), this.shipsPlacer.horizontal, this.shipsPlacer.length);
+	if (!placementCheck.isPlacementAvailable)
 		return;
 
-	this.engine.registerShip(parseInt(event.target.dataset.x), parseInt(event.target.dataset.y), this.shipsPlacer.horizontal, this.shipsPlacer.length);
+	this.api.registerShip(parseInt(event.target.dataset.x), parseInt(event.target.dataset.y), this.shipsPlacer.horizontal, this.shipsPlacer.length);
 
 	this.shipsPlacer.shipsLeft.map((ship: { quantity: number; length: number }) => {
 		if (ship.length === this.shipsPlacer.length)
@@ -34,6 +34,6 @@ export default async function boardCellClick(event: MouseEvent & { target: HTMLT
 	});
 	if (chosenShip.quantity === 0)
 		document.getElementsByClassName('js-ship-' + shipLength).item(0).classList.add('ship-select--used');
-	this.colorPath(placementCheck.correctPath, 'ship--ally');
+	this.colorPath(placementCheck.tilesWithCorrectPlacement, 'ship--ally');
 	this.clearShipPreview();
 }

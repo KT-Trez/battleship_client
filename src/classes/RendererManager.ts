@@ -17,14 +17,14 @@ export default class RendererManager {
 		width: number
 	};
 	private currentPlayerID: string | null;
-	private readonly engine: API;
+	private readonly api: API;
 	private readonly renderer: Renderer;
 	private readonly shipsPlacer: ShipPlacer;
 	private shipsPlacement: boolean;
 
 	constructor(engine: API) {
 		this.currentPlayerID = null;
-		this.engine = engine;
+		this.api = engine;
 		this.renderer = new Renderer();
 		this.shipsPlacement = false;
 
@@ -52,6 +52,11 @@ export default class RendererManager {
 		const children = Array.from(display.children);
 		for (let i = 0; i < children.length; i++)
 			children[i].remove();
+	}
+
+	clearFriendlyShips() {
+		for (const shipDOM of Array.from(document.getElementsByClassName('ship--ally')))
+			shipDOM.classList.remove('ship--ally');
 	}
 
 	clearShipPreview() {
@@ -94,9 +99,20 @@ export default class RendererManager {
 		const buttonsContainerDOM = DOM.newCreateElement('div', 'select-buttons', null, shipsContainerDOM);
 		const placeRandomButtonDOM = DOM.newCreateElement('button', 'select-button', 'Umieść losowo', buttonsContainerDOM);
 		placeRandomButtonDOM.onclick = () => {
-			// todo: move all sockets to engine
+			// todo: move all sockets to api
 			SocketService.getInstance().emit('registerShipsRandom', parseInt(sessionStorage.getItem('roomID')), forceArr => {
-				this.renderer.renderStartButton(this.engine.toggleIsClientReady);
+				for (const ship of config.ShipsList) {
+					DOM.updateDynamicElement('ship-' + ship.length, {
+						innerText: '0x'
+					});
+					const shipDOM = document.getElementsByClassName('js-ship-' + ship.length) as  HTMLCollectionOf<HTMLDivElement>;
+					shipDOM.item(0).classList.add('ship-select--used');
+					shipDOM.item(0).onclick = null;
+				}
+
+				if (!document.getElementById('js-action--ready'))
+					this.renderer.renderStartButton(this.api.toggleIsClientReady);
+				this.clearFriendlyShips();
 				this.colorPath(forceArr, 'ship--ally');
 			});
 		};
@@ -105,26 +121,26 @@ export default class RendererManager {
 	}
 
 	initListeners() {
-		this.engine.events
+		this.api.events
 			.addEventListener('createShipsSelect', () => this.createShipsSelect());
 
-		this.engine.events.addEventListener('game-init', event => gameInit.call(this, event));
+		this.api.events.addEventListener('game-init', event => gameInit.call(this, event));
 
-		this.engine.events.addEventListener('game-started', event => gameStarted.call(this, event));
+		this.api.events.addEventListener('game-started', event => gameStarted.call(this, event));
 
-		this.engine.events
-			.addEventListener('ships-placed', () => this.renderer.renderStartButton(this.engine.toggleIsClientReady));
+		this.api.events
+			.addEventListener('ships-placed', () => this.renderer.renderStartButton(this.api.toggleIsClientReady));
 
-		this.engine.events.addEventListener('game-shot', (event: GameShot) => {
-				this.renderer.renderTileShot(event.detail.shooterID, event.detail.coordinates.x, event.detail.coordinates.y, event.detail.result, event.detail.victimsIDs);
-			});
+		this.api.events.addEventListener('game-shot', (event: GameShot) => {
+			this.renderer.renderTileShot(event.detail.shooterID, event.detail.coordinates.x, event.detail.coordinates.y, event.detail.result, event.detail.victimsIDs);
+		});
 
-		this.engine.events.addEventListener('game-next_turn', (event: GameNextTurn) => {
-				this.currentPlayerID = event.detail.leadPlayerID;
-				this.renderer.renderTurn(event.detail.leadPlayerID, event.detail.turnUptime.startedAt, event.detail.turnUptime.duration);
-			});
+		this.api.events.addEventListener('game-next_turn', (event: GameNextTurn) => {
+			this.currentPlayerID = event.detail.leadPlayerID;
+			this.renderer.renderTurn(event.detail.leadPlayerID, event.detail.turnUptime.startedAt, event.detail.turnUptime.duration);
+		});
 
-		this.engine.events.addEventListener('game-win', event => gameEnded.call(this, event));
+		this.api.events.addEventListener('game-ended', event => gameEnded.call(this, event));
 	}
 
 	async renderShipPreview(x: number, y: number) {
@@ -133,7 +149,7 @@ export default class RendererManager {
 		if ((y + this.shipsPlacer.length > this.board.height && !this.shipsPlacer.horizontal) || (x + this.shipsPlacer.length > this.board.width && this.shipsPlacer.horizontal))
 			return;
 
-		const placementResponse = await this.engine.checkPath(x, y, this.shipsPlacer.horizontal, this.shipsPlacer.length);
+		const placementResponse = await this.api.checkPath(x, y, this.shipsPlacer.horizontal, this.shipsPlacer.length);
 		this.shipsPlacer.allowed = placementResponse.isPlacementAvailable;
 
 		this.colorPath(placementResponse.tilesContactingObstacles, 'ship-preview--collision')

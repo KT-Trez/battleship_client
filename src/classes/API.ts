@@ -80,13 +80,11 @@ export default class API {
 
 	// todo: docs
 	registerShip(x: number, y: number, horizontally: boolean, length: number) {
-		SocketService.getInstance().emit('registerShip', parseInt(sessionStorage.getItem('roomID')), {
-			x,
-			y
-		}, horizontally, length, status => {
+		SocketService.getInstance().emit('registerShip', parseInt(sessionStorage.getItem('roomID')), {x, y}, horizontally, length, status => {
 			if (status) {
 				this.shipsPlaced++;
 
+				console.log(this.shipsPlaced, this.shipsCount)
 				if (this.shipsPlaced === this.shipsCount)
 					this.createAndDispatchEvent('ships-placed', {
 						toggleReadyStatusFun: this.toggleIsClientReady
@@ -100,7 +98,7 @@ export default class API {
 	registerShot(x: number, y: number) {
 		this.shotsFired++;
 		SocketService.getInstance().emit('registerShot', parseInt(sessionStorage.getItem('roomID')), {x, y}, hasHit => {
-			console.log(hasHit);
+			console.info(hasHit ? 'Hit' : 'Miss')
 		});
 	}
 

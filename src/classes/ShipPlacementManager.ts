@@ -19,7 +19,7 @@ export default class ShipPlacementManager {
 
 	async checkPlacement(x: number, y: number) {
 		const placementInfo = await this.api.checkPath(x, y, this.isHorizontal, this.shipLength);
-		this.isCorrect = placementInfo.available;
+		this.isCorrect = placementInfo.isPlacementAvailable;
 		return placementInfo;
 	}
 

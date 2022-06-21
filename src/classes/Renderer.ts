@@ -60,28 +60,29 @@ export default class Renderer {
 		document.getElementById('js-display').appendChild(headerDOM);
 	}
 
-	renderPlayers(playersIDs: string[]) {
-		for (const playerID of playersIDs) {
-			const playerDOM = DOM.newCreateElement('p', ['header-item', 'player'], playerID, document.getElementById('js-players'));
-			playerDOM.id = 'js-' + playerID;
+	renderPlayers(players: Client[]) {
+		for (const player of players) {
+			const playerDOM = DOM.newCreateElement('p', ['header-item', 'player'], player.nick, document.getElementById('js-players'));
+			playerDOM.id = 'js-' + player.id;
 		}
 	}
 
 	renderStartButton(toggleReadyStatusFun: Function) {
 		DOM.createElement('button', {
 			className: 'select-button select-button--ready',
+			id: 'js-action--ready',
 			innerText: 'Gotów',
 			onclick: (clickEvent: MouseEvent & { target: HTMLButtonElement }) => {
-				toggleReadyStatusFun();
-				clickEvent.target.innerText = 'Anuluj';
+				const isReady = toggleReadyStatusFun();
+				clickEvent.target.innerText = isReady ? 'Anuluj' : 'Gotów';
 			}
 		}, document.getElementsByClassName('select-buttons').item(0));
 	}
 
-	renderTileShot(shooterID: string, x: number, y: number, type: 'hit' | 'miss', enemiesIDs: string[]) {
-		console.log(shooterID, x, y, enemiesIDs);
-		for (const enemyID of enemiesIDs) {
-			const tile = document.querySelector(`[class='board-tile js-client-${enemyID}'][data-x='${x}'][data-y='${y}']`);
+	renderTileShot(shooterID: string, x: number, y: number, type: 'hit' | 'miss', damagedPlayersIDs: string[]) {
+		for (const damagedPlayerID of damagedPlayersIDs) {
+			const playerTiles = Array.from(document.getElementsByClassName(`js-client-${damagedPlayerID}`)) as HTMLTableCellElement[];
+			const tile = playerTiles.find(tile => parseInt(tile.dataset.x) === x && parseInt(tile.dataset.y) === y);
 
 			Object.assign(tile, {
 				onclick: null
@@ -90,6 +91,12 @@ export default class Renderer {
 		}
 	}
 
+	renderShips(coordinatesArr: Coordinates[]) {
+		for (const coordinate of coordinatesArr) {
+			const tile = document.querySelector(`[data-x='${coordinate.x}'][data-y='${coordinate.y}']`);
+			tile.classList.add('ship--ally')
+		}
+	}
 
 	renderTurn(clientID: string, statedAt: Date, duration: number) {
 		// current player highlight

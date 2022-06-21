@@ -52,7 +52,7 @@
     padding-top: 5px;
 }
 
-.ship-select:active {
+.ship-select:active:not(.ship-select--used) {
     transform: translateY(2px);
 }
 

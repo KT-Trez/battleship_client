@@ -30,13 +30,17 @@
     padding: 10px;
 }
 
-.section-button:hover {
-    opacity: 0.5;
-}
-
-.section-button:active {
+.section-button:active:not(:disabled) {
     opacity: 0.25;
     transform: translateY(0.1em);
+}
+
+.section-button:disabled {
+    opacity: 0.25;
+}
+
+.section-button:hover:not(:disabled) {
+    opacity: 0.5;
 }
 
 .section-input {
